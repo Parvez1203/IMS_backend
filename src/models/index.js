@@ -36,7 +36,8 @@ Object.keys(db).forEach(modelName => {
     db[modelName].associate(db);
   }
 });
-
+db.stock_entries = require('./stock_entries')(sequelize, Sequelize.DataTypes);
+db.stock_entries.associate(db);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
