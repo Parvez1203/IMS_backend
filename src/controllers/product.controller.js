@@ -1,4 +1,4 @@
-const { Product } = require('../models');
+const { products, stock_entries } = require('../models');
 
 exports.createProduct = async (req, res) => {
   try {
@@ -11,12 +11,17 @@ exports.createProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.findAll();
-    res.json(products);
+    const productList = await products.findAll({
+      where: { is_deleted: false }, // ← Only fetch active
+      include: [/* associations if needed */],
+    });
+
+    res.json(productList);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching products', error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getProductById = async (req, res) => {
   try {
@@ -52,12 +57,31 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
+    const { id } = req.params;
 
-    await product.destroy();
-    res.json({ message: 'Product deleted successfully' });
+    // Get the latest stock entry
+    const lastEntry = await stock_entries.findOne({
+      where: { product_id: id },
+      order: [['entry_date', 'DESC']],
+    });
+
+    const latestClosingBalance = lastEntry ? lastEntry.closing_balance : 0;
+
+    // Add zeroing entry
+    await stock_entries.create({
+      product_id: id,
+      entry_date: new Date(),
+      opening_quantity: 0,
+      closing_balance: 0,
+      remarks: 'Auto-zeroed before deletion',
+    });
+
+    // Soft delete the product
+    await products.update({ is_deleted: true }, { where: { id } });
+
+    res.status(200).json({ message: 'Product soft-deleted and zeroed successfully.' });
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting product', error: err.message });
+    console.error('Error soft-deleting product:', err);
+    res.status(500).json({ error: 'Failed to soft-delete product.' });
   }
 };
