@@ -10,5 +10,6 @@ router.get('/:id', userController.getOne);
 router.post('/', userController.create);
 router.put('/:id', userController.update);
 router.delete('/:id', userController.delete);
+router.put('/:id/password', userController.updatePassword);
 
 module.exports = router;
