@@ -1,18 +1,43 @@
 'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const stock_entries = sequelize.define('stock_entries', {
-    product_id: DataTypes.INTEGER,
-    entry_date: DataTypes.DATE,
-    opening_quantity: DataTypes.INTEGER,
-    closing_balance: DataTypes.INTEGER
-  }, {});
+const { Model } = require('sequelize');
 
-  stock_entries.associate = function(models) {
-    stock_entries.belongsTo(models.products, {
-      foreignKey: 'product_id',
-      as: 'product'
-    });
-  };
+module.exports = (sequelize, DataTypes) => {
+  class stock_entries extends Model {
+    static associate(models) {
+      stock_entries.belongsTo(models.Product, {
+        foreignKey: 'product_id',
+        as: 'product'
+      });
+
+      stock_entries.hasMany(models.production_orders, {
+        foreignKey: 'stock_entry_id',
+        as: 'productionOrders'
+      });
+    }
+  }
+
+  stock_entries.init({
+    product_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    entry_date: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    opening_quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    closing_balance: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'stock_entries',
+    tableName: 'stock_entries'
+  });
 
   return stock_entries;
 };
