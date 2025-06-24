@@ -28,17 +28,27 @@ exports.getProductById = async (req, res) => {
   }
 };
 
+// PUT /api/products/:id
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
+    const product = await Product.findByPk(req.params.id)
+    if (!product) return res.status(404).json({ message: "Product not found" })
 
-    await product.update(req.body);
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ message: 'Error updating product', error: err.message });
+    const { name, unit_id, remarks, stock_threshold } = req.body
+
+    await product.update({
+      name,
+      unit_id,
+      remarks,
+      stock_threshold,
+    })
+
+    res.json(product)
+  } catch (error) {
+    console.error("Error updating product:", error)
+    res.status(500).json({ message: "Internal server error" })
   }
-};
+}
 
 exports.deleteProduct = async (req, res) => {
   try {
