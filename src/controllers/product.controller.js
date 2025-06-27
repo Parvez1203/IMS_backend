@@ -1,4 +1,4 @@
-const { products, stock_entries } = require('../models');
+const { Product, stock_entries } = require('../models');
 
 exports.createProduct = async (req, res) => {
   try {
@@ -11,10 +11,7 @@ exports.createProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const productList = await products.findAll({
-      where: { is_deleted: false }, // ← Only fetch active
-      include: [/* associations if needed */],
-    });
+    const productList = await Product.findAll();
 
     res.json(productList);
   } catch (err) {
@@ -77,7 +74,7 @@ exports.deleteProduct = async (req, res) => {
     });
 
     // Soft delete the product
-    await products.update({ is_deleted: true }, { where: { id } });
+    await Product.update({ is_deleted: true }, { where: { id } });
 
     res.status(200).json({ message: 'Product soft-deleted and zeroed successfully.' });
   } catch (err) {
