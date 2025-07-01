@@ -19,7 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     // category_id: DataTypes.INTEGER,
     unit_id: DataTypes.INTEGER,
     remarks: DataTypes.TEXT,
-    stock_threshold: DataTypes.INTEGER
+    stock_threshold: DataTypes.INTEGER,
+    is_deleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   }, {
     sequelize,
     modelName: 'Product',

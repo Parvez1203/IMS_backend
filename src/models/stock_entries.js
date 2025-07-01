@@ -32,6 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     closing_balance: {
       type: DataTypes.INTEGER,
       allowNull: false
+    }, rate: {
+      type: Sequelize.FLOAT,
+      allowNull: false
     }
   }, {
     sequelize,
