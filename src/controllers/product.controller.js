@@ -2,12 +2,24 @@ const { Product, stock_entries } = require('../models');
 
 exports.createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const { name, ...rest } = req.body;
+
+    // Check if product with the same name already exists
+    const existingProduct = await Product.findOne({ where: { name } });
+
+    if (existingProduct) {
+      return res.status(400).json({ message: 'Product already exists with this name' });
+    }
+
+    const product = await Product.create({ name, ...rest });
     res.status(201).json(product);
+
   } catch (err) {
+    console.error('Error creating product:', err);
     res.status(500).json({ message: 'Error creating product', error: err.message });
   }
 };
+
 
 exports.getAllProducts = async (req, res) => {
   try {

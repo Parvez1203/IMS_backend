@@ -18,6 +18,7 @@ app.use('/api/categories', require('./routes/category.routes'));
 app.use('/api/sizes', require('./routes/clothSize.routes'));
 app.use('/api/units', require('./routes/unit.routes'));
 app.use('/api/stock', require('./routes/stock.routes'));
+app.use('/api/orders', require('./routes/productionOrder.routes'));
 
 
 // DB Connection Test and Server Start
