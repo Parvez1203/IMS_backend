@@ -19,10 +19,10 @@ app.use('/api/sizes', require('./routes/clothSize.routes'));
 app.use('/api/units', require('./routes/unit.routes'));
 app.use('/api/stock', require('./routes/stock.routes'));
 app.use('/api/orders', require('./routes/productionOrder.routes'));
-
+app.use('/api/reports', require('./routes/reports.routes'));
 
 // DB Connection Test and Server Start
-const PORT = process.env.port || 3001;
+const PORT = process.env.PORT || 3001;
 sequelize.authenticate()
   .then(() => {
     console.log('✅ DB connection successful');
