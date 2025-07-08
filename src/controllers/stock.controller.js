@@ -5,39 +5,6 @@ const { QueryTypes } = require('sequelize');
  * Create new stock entry
  * Computes closing_balance = last_closing_balance + opening_quantity
  */
-// exports.createStockEntry = async (req, res) => {
-//   try {
-//     const { product_id, entry_date, opening_quantity, rate = 0, remarks } = req.body;
-
-//     if (!product_id || !entry_date || !opening_quantity) {
-//       return res.status(400).json({ message: "Missing required fields: product_id, entry_date, opening_quantity, or rate." });
-//     }
-
-//     const lastEntry = await stock_entries.findOne({
-//       where: { product_id },
-//       order: [['entry_date', 'DESC']],
-//     });
-//     console.log(`----${lastEntry}`)
-
-//     const previousBalance = lastEntry?.closing_balance || 0;
-//     const closing_balance = previousBalance + Number(opening_quantity);
-
-//     const entry = await stock_entries.create({
-//       product_id,
-//       entry_date,
-//       opening_quantity,
-//       closing_balance,
-//       rate,
-//       remarks: remarks || "",
-//     });
-
-//     res.status(201).json(entry);
-//   } catch (err) {
-//     console.error("Error creating stock entry:", err);
-//     res.status(500).json({ error: "Internal server error", details: err.message });
-//   }
-// };
-
 exports.createStockEntry = async (req, res) => {
   try {
     const { product_id, entry_date, opening_quantity, rate = 0, remarks } = req.body;
@@ -57,7 +24,7 @@ exports.createStockEntry = async (req, res) => {
       ],
     });
 
-    const previousBalance = lastEntry?.closing_balance || 0;
+    const previousBalance = lastEntry?.closing_balance ?? 0
     const closing_balance = previousBalance + Number(opening_quantity);
 
     const entry = await stock_entries.create({
@@ -76,23 +43,9 @@ exports.createStockEntry = async (req, res) => {
   }
 };
 
-
-
 /**
  * Get all stock entries, with associated product name
  */
-// exports.getAllStockEntries = async (req, res) => {
-//   try {
-//     const entries = await stock_entries.findAll({
-//       include: [{ model: Product, as: 'product', attributes: ['name'] }],
-//       order: [['entry_date', 'DESC']]
-//     });
-//     res.json(entries);
-//   } catch (err) {
-//     console.error("Error fetching stock entries:", err);
-//     res.status(500).json({ error: err.message });
-//   }
-// };
 exports.getAllStockEntries = async (req, res) => {
   try {
     const entries = await sequelize.query(

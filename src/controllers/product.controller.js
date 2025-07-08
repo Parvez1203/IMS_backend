@@ -4,13 +4,21 @@ exports.createProduct = async (req, res) => {
   try {
     const { name, ...rest } = req.body;
 
-    // Check if product with the same name already exists
+    // Check if product with the same name exists (including soft-deleted)
     const existingProduct = await Product.findOne({ where: { name } });
 
     if (existingProduct) {
-      return res.status(400).json({ message: 'Product already exists with this name' });
+      if (existingProduct.is_deleted) {
+        // If soft-deleted, restore it instead of erroring
+        await existingProduct.update({ ...rest, is_deleted: false });
+        return res.status(200).json({ message: 'Product restored successfully.', product: existingProduct });
+      } else {
+        // If already active, block creation
+        return res.status(400).json({ message: 'Product already exists with this name' });
+      }
     }
 
+    // If no existing product, create new
     const product = await Product.create({ name, ...rest });
     res.status(201).json(product);
 
@@ -21,9 +29,14 @@ exports.createProduct = async (req, res) => {
 };
 
 
+
 exports.getAllProducts = async (req, res) => {
   try {
-    const productList = await Product.findAll();
+    const productList = await Product.findAll({
+      where: {
+        is_deleted: false,
+      },
+    });
 
     res.json(productList);
   } catch (err) {
@@ -82,6 +95,7 @@ exports.deleteProduct = async (req, res) => {
       entry_date: new Date(),
       opening_quantity: 0,
       closing_balance: 0,
+      rate: lastEntry?.rate || 0,
       remarks: 'Auto-zeroed before deletion',
     });
 
